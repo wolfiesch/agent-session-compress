@@ -18,6 +18,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"runtime/debug"
 	"slices"
 	"strings"
 	"time"
@@ -388,7 +389,11 @@ func run(args []string, stdout, stderr io.Writer) int {
 	}
 
 	if *showVersion {
-		fmt.Fprintln(stdout, "agent-session-compress", version)
+		v := version
+		if info, ok := debug.ReadBuildInfo(); ok && v == "dev" && info.Main.Version != "" && info.Main.Version != "(devel)" {
+			v = info.Main.Version // set by `go install module@version`
+		}
+		fmt.Fprintln(stdout, "agent-session-compress", v)
 		return 0
 	}
 	if *list {
